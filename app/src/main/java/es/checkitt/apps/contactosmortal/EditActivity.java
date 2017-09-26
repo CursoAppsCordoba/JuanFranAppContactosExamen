@@ -56,22 +56,24 @@ public class EditActivity extends AppCompatActivity implements View.OnClickListe
         Intent inte= new Intent();
         switch (view.getId()){
             case R.id.volver_edit:
-                setResult(EditActivity.RESULT_CANCELED, inte);
+                setResult(AddActivity.RESULT_CANCELED,inte);
                 finish();
                 break;
 
             case R.id.edit_edit:
                 if (!TextUtils.isEmpty(nombre.getText().toString())){
                     agenda.get(i).setNombre(nombre.getText().toString());
+                    bandera=true;
                 }
                 if (!TextUtils.isEmpty(email.getText().toString())){
                     agenda.get(i).setEmail(email.getText().toString());
+                    bandera=true;
                 }
                 if (!TextUtils.isEmpty(telefono.getText().toString())){
                     agenda.get(i).setTelefono(Integer.parseInt(telefono.getText().toString()));
+                    bandera=true;
                 }
                 if (bandera){
-                    setResult(400);
                     setResult(AddActivity.RESULT_OK,inte);
                     inte.putExtra("array", agenda);
                     finish();

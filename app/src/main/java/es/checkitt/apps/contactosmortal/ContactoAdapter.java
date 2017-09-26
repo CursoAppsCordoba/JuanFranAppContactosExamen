@@ -5,77 +5,65 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Created by Apps on 25/09/2017.
  */
 
-public class ContactoAdapter extends RecyclerView.Adapter<ContactoAdapter.ContactoViewHolder> {
-    private List<Contacto> items;
+public class ContactoAdapter extends BaseAdapter {
+
     private Context context;
+    private ArrayList<Contacto> agenda;
 
-    private static RecyclerViewClickListener mListener;
-
-    public ContactoAdapter(List<Contacto> items, final Context context, RecyclerViewClickListener itemClickListener) {
-        this.items = items;
+    public ContactoAdapter(Context context, ArrayList<Contacto> agenda) {
         this.context = context;
+        this.agenda = agenda;
+    }
+    public ArrayList<Contacto> getData(){
+        return agenda;
+    }
 
-        mListener = itemClickListener;
+    @Override
+    public int getCount() {
+        return agenda.size();
+    }
+
+    @Override
+    public Object getItem(int i) {
+        return agenda.get(i);
+    }
+
+    @Override
+    public long getItemId(int i) {
+        return i;
     }
 
 
-    public static class ContactoViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
-        public ImageView imagen;
-        public TextView nombre;
-        public TextView telefono;
-        public TextView email;
+    @Override
+    public View getView(int i, View view, ViewGroup viewGroup) {
 
+        if (view==null){
+            LayoutInflater inflater= (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            view= inflater.inflate(R.layout.list_item_view, viewGroup, false);
 
-        public ContactoViewHolder(View v) {
-            super(v);
-            imagen = (ImageView) v.findViewById(R.id.imagen);
-            nombre = (TextView) v.findViewById(R.id.nombre);
-            telefono = (TextView) v.findViewById(R.id.telefono);
-            email= (TextView) v.findViewById(R.id.view_email);
-            v.setOnClickListener(this);
         }
+        TextView name = (TextView) view.findViewById(R.id.tv_name);
+        TextView title = (TextView) view.findViewById(R.id.tv_title);
+        TextView company = (TextView) view.findViewById(R.id.tv_company);
 
-        @Override
-        public void onClick(View view) {
-
-        }
-    }
-    public ContactoAdapter(List<Contacto> items) {
-        this.items = items;
-    }
-    @Override
-    public long getItemId(int position) {
-        return position;
-    }
+        Contacto contacto= this.agenda.get(i);
+        name.setText(contacto.getNombre().toString());
+        title.setText(contacto.getEmail().toString());
+        company.setText(contacto.getTelefono().toString());
 
 
-    @Override
-    public ContactoViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View v = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.design_cardlist, parent, false);
-        return new ContactoViewHolder(v);
-    }
-
-    @Override
-    public void onBindViewHolder(ContactoViewHolder viewHolder, int i) {
-
-        viewHolder.nombre.setText(items.get(i).getNombre());
-        viewHolder.telefono.setText(String.valueOf(items.get(i).getTelefono()));
-        viewHolder.email.setText(items.get(i).getEmail());
-    }
-
-
-    @Override
-    public int getItemCount() {
-        return items.size();
+        return view;
     }
 }
