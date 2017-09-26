@@ -1,0 +1,19 @@
+
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools" tools:context=".MainActivity">
+    <item
+        android:id="@+id/list_menu"
+        android:orderInCategory="100"
+        android:showAsAction="never"
+        android:title="Mostrar todos" />
+    <item
+        android:id="@+id/add_menu"
+        android:orderInCategory="100"
+        android:showAsAction="never"
+        android:title="Añadir" />
+    <item
+        android:id="@+id/remove_menu"
+        android:orderInCategory="100"
+        android:showAsAction="never"
+        android:title="Eliminar" />
+</menu>
