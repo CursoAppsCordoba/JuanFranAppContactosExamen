@@ -15,13 +15,13 @@ public class Contacto implements Serializable, Comparator<Contacto>{
     private String nombre;
     private String email;
     private Integer telefono;
-    private Bitmap image;
+    private String image;
 
-    public Bitmap getImage() {
+    public String getImage() {
         return image;
     }
 
-    public void setImage(Bitmap image) {
+    public void setImage(String image) {
         this.image = image;
     }
 
@@ -29,7 +29,7 @@ public class Contacto implements Serializable, Comparator<Contacto>{
         this.nombre=nombre;
     }
 
-    public Contacto(String nombre, String email, Integer telefono, Bitmap image) {
+    public Contacto(String nombre, String email, Integer telefono, String image) {
         this.nombre = nombre;
         this.email = email;
         this.telefono = telefono;

@@ -78,36 +78,10 @@ public class EditActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.main_menu, menu);
-        return true;
+    public void onBackPressed() {
+        Intent inte= new Intent();
+        setResult(AddActivity.RESULT_CANCELED,inte);
+        finish();
     }
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
 
-        int id = item.getItemId();
-        Intent inte;
-
-        switch (id){
-            case R.id.add_menu:
-                inte= new Intent(this, AddActivity.class);
-                startActivityForResult(inte, 100);
-                finish();
-                break;
-
-            case R.id.remove_menu:
-                inte= new Intent(this, RemoveActivity.class);
-                startActivityForResult(inte, 200);
-                finish();
-                break;
-
-            case R.id.list_menu:
-                inte= new Intent(this, MainActivity.class);
-                startActivity(inte);
-                finish();
-                break;
-        }
-
-        return super.onOptionsItemSelected(item);
-    }
 }

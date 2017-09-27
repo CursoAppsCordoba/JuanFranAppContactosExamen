@@ -22,6 +22,7 @@ import android.support.v4.content.FileProvider;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -32,6 +33,12 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Objects;
 
 
@@ -40,6 +47,7 @@ import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
 import static android.provider.MediaStore.AUTHORITY;
 
 public class AddActivity extends AppCompatActivity implements View.OnClickListener{
+    private static final String APP_TAG = "PictureApp";
     private static String APP_DIRECTORY= "MyPictureApp/";
     private static String MEDIA_DIRECTORY= APP_DIRECTORY +"PictureApp";
     private final int MY_PERMISSIONS = 100;
@@ -50,6 +58,7 @@ public class AddActivity extends AppCompatActivity implements View.OnClickListen
     private Button add_i;
     private String mPath;
     private Bitmap bitmap;
+    private String ubicacion;
 
 
     private TextView nombre, email, telefono;
@@ -72,7 +81,11 @@ public class AddActivity extends AppCompatActivity implements View.OnClickListen
         
 
         if (myRequestStoragePermission())
-            add_i.setEnabled(true);
+            if (Build.VERSION.SDK_INT > Build.VERSION_CODES.M) {
+                add_i.setEnabled(true);
+            }else{
+                Toast.makeText(this, "Necesitas android superior a Nougat para añadir una imagen de la cámara.", Toast.LENGTH_SHORT).show();
+                add_i.setEnabled(false);}
         else
             add_i.setEnabled(false);
         
@@ -80,26 +93,36 @@ public class AddActivity extends AppCompatActivity implements View.OnClickListen
         add_i.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                showOptions();
+
+                try {
+                    openCamera();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
         });
 
     }
 
-    private void showOptions() {
+   /* private void showOptions() {
 
-        final CharSequence[] option = {"Tomar foto", "Elegir de galería", "Cancelar" };
+        final CharSequence[] option = {"Tomar foto", *//*"Elegir de galería",*//* "Cancelar" };
         final AlertDialog.Builder builder = new AlertDialog.Builder(AddActivity.this);
         builder.setTitle("¿Cómo deseas añadir una imagen?");
         builder.setItems(option, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
                 if (option[i]== "Tomar foto"){
-                    openCamera();
-                }else if (option[i]== "Elegir de galería"){
+                    try {
+                        openCamera();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    //No funciona bien lo de Elegir de galería.
+                *//*}else if (option[i]== "Elegir de galería"){
                     Intent intent = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-                    intent.setType("image/*");
-                    startActivityForResult(intent.createChooser(intent, "Seleccionar banco de imagenes"), SELECT_PICTURE);
+                    intent.setType("image*//**//*");
+                    startActivityForResult(intent.createChooser(intent, "Seleccionar banco de imagenes"), SELECT_PICTURE);*//*
                 }else{
                     dialogInterface.dismiss();
                 }
@@ -107,10 +130,11 @@ public class AddActivity extends AppCompatActivity implements View.OnClickListen
         });
         builder.show();
 
-    }
+    }*/
 
-    private void openCamera() {
-        File file = new File(Environment.getExternalStorageDirectory(), MEDIA_DIRECTORY);
+    private void openCamera() throws IOException {
+        File file = new File(
+                getExternalFilesDir(Environment.DIRECTORY_PICTURES), APP_TAG);
         boolean isCreated = file.exists();
         if (!isCreated){
             isCreated = file.mkdirs();
@@ -119,18 +143,21 @@ public class AddActivity extends AppCompatActivity implements View.OnClickListen
             Long timestamp= System.currentTimeMillis() / 1000;
             String imageName = timestamp.toString()+".jpg";
 
-            mPath = Environment.getExternalStorageState() + File.separator + MEDIA_DIRECTORY + File.separator + imageName;
 
-            File newFile = new File(mPath);
+            Uri uri = FileProvider.getUriForFile(AddActivity.this,
+                    BuildConfig.APPLICATION_ID + ".provider",
+                    createImageFile());
 
-            Intent intent = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
-            intent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(newFile));
+            Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+            intent.putExtra(MediaStore.EXTRA_OUTPUT, uri);
             if (intent.resolveActivity(getPackageManager()) != null) {
                 startActivityForResult(intent, PHOTO_CODE);
             }
         }
 
     }
+
+
 
     @Override
     public void onSaveInstanceState(Bundle outState, PersistableBundle outPersistentState) {
@@ -151,21 +178,32 @@ public class AddActivity extends AppCompatActivity implements View.OnClickListen
         if(resultCode== RESULT_OK){
             switch (requestCode){
                 case PHOTO_CODE:
-                    MediaScannerConnection.scanFile(this,
-                            new String[]{mPath}, null, new MediaScannerConnection.OnScanCompletedListener() {
-                                @Override
-                                public void onScanCompleted(String s, Uri uri) {
-                                    Log.i("ExternalStorage", "Scanned "+ mPath +":");
-                                    Log.i("ExternalStorage", "-> Uri = "+uri);
+                    Uri imageUri = Uri.parse(mPath);
+                    File file = new File(imageUri.getPath());
+                    try {
+                        InputStream ims = new FileInputStream(file);
+                        mSetImage.setImageBitmap(BitmapFactory.decodeStream(ims));
+                    } catch (FileNotFoundException e) {
+                        return;
+                    }
+
+                    MediaScannerConnection.scanFile(AddActivity.this,
+                            new String[]{imageUri.getPath()}, null,
+                            new MediaScannerConnection.OnScanCompletedListener() {
+                                public void onScanCompleted(String path, Uri uri) {
                                 }
                             });
-                    bitmap = BitmapFactory.decodeFile(mPath);
-                    mSetImage.setImageBitmap(bitmap);
                     break;
-                case SELECT_PICTURE:
+                //No muestra la imagen pero si guarda el path.
+/*                case SELECT_PICTURE:
+
                     Uri path = data.getData();
                     mSetImage.setImageURI(path);
-                    break;
+                    mPath= data.getData().getPath();
+                    String prueba= mSetImage.getDrawable().toString();
+
+                    Toast.makeText(this, ".", Toast.LENGTH_SHORT).show();
+                    break;*/
             }
         }
     }
@@ -201,10 +239,9 @@ public class AddActivity extends AppCompatActivity implements View.OnClickListen
                 contacto.setNombre(nombre.getText().toString());
                 contacto.setEmail(email.getText().toString());
                 contacto.setTelefono(Integer.parseInt(telefono.getText().toString()));
-                if (!Objects.equals(mSetImage,null)){
 
-                    bitmap = ((BitmapDrawable) mSetImage.getDrawable()).getBitmap();
-                    contacto.setImage(bitmap);
+                if (null!=mSetImage.getDrawable()){
+                    contacto.setImage(mPath);
                 }
                 inte.putExtra("contacto", contacto);
                 setResult(AddActivity.RESULT_OK, inte);
@@ -219,37 +256,6 @@ public class AddActivity extends AppCompatActivity implements View.OnClickListen
     }
 
     //https://github.com/neelk07/SampleContactAndroidApp/blob/master/src/com/example/SampleContactApp/ContactList.java
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.main_menu, menu);
-        return true;
-    }
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-
-        int id = item.getItemId();
-        Intent inte;
-
-        switch (id){
-            case R.id.add_menu:
-                Toast.makeText(this, "Ya estás en añadir, rellena todos los datos para añadir un contacto.", Toast.LENGTH_SHORT).show();
-                break;
-
-            case R.id.remove_menu:
-                inte= new Intent(this, RemoveActivity.class);
-                startActivityForResult(inte, 200);
-                finish();
-                break;
-
-            case R.id.list_menu:
-                inte= new Intent(this, MainActivity.class);
-                startActivity(inte);
-                finish();
-                break;
-        }
-
-        return super.onOptionsItemSelected(item);
-    }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
@@ -285,5 +291,26 @@ public class AddActivity extends AppCompatActivity implements View.OnClickListen
             }
         });
         builder.show();
+    }
+
+    @Override
+    public void onBackPressed() {
+        Intent inte= new Intent();
+        setResult(AddActivity.RESULT_CANCELED,inte);
+        finish();
+    }
+    private File createImageFile() throws IOException {
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+        String imageFileName = "JPEG_" + timeStamp + "_";
+        File storageDir = new File(Environment.getExternalStoragePublicDirectory(
+                Environment.DIRECTORY_DCIM), "Camera");
+        File image = File.createTempFile(
+                imageFileName,
+                ".jpg",
+                storageDir
+        );
+
+        mPath = "file:" + image.getAbsolutePath();
+        return image;
     }
 }
