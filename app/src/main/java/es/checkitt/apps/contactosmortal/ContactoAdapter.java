@@ -10,6 +10,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -57,12 +59,14 @@ public class ContactoAdapter extends BaseAdapter {
         TextView name = (TextView) view.findViewById(R.id.tv_name);
         TextView title = (TextView) view.findViewById(R.id.tv_title);
         TextView company = (TextView) view.findViewById(R.id.tv_company);
+        ImageView image = (ImageView) view.findViewById(R.id.iv_avatar);
 
         Contacto contacto= this.agenda.get(i);
         name.setText(contacto.getNombre().toString());
         title.setText(contacto.getEmail().toString());
         company.setText(contacto.getTelefono().toString());
-
+        if (contacto.getImage()!=null)
+        Glide.with(view.getContext()).load(contacto.getImage()).into(image);
 
         return view;
     }

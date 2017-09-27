@@ -3,6 +3,7 @@ package es.checkitt.apps.contactosmortal;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -28,11 +29,16 @@ public class RemoveActivity extends AppCompatActivity implements View.OnClickLis
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.remove_search:
-                Intent inte= new Intent();
-                String buscar= busqueda.getText().toString();
-                inte.putExtra("busqueda", buscar );
-                setResult(RESULT_OK, inte);
-                finish();
+                    Intent inte= new Intent();
+                    Contacto c= new Contacto(busqueda.getText().toString());
+                    if (!TextUtils.isEmpty(busqueda.getText().toString())){
+                    inte.putExtra("busqueda", c );
+                    setResult(RESULT_OK, inte);
+                    finish();
+                    }else{
+                    Toast.makeText(this, "No has añadido ningún nombre a buscar.", Toast.LENGTH_SHORT).show();
+                    }
+
                 break;
         }
     }

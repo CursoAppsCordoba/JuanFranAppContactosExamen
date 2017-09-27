@@ -1,5 +1,6 @@
 package es.checkitt.apps.contactosmortal;
 
+import android.graphics.drawable.Drawable;
 import android.media.Image;
 
 import java.io.Serializable;
@@ -13,17 +14,21 @@ public class Contacto implements Serializable, Comparator<Contacto>{
     private String nombre;
     private String email;
     private Integer telefono;
-    private Image image;
+    private Drawable image;
 
-    public Image getImage() {
+    public Drawable getImage() {
         return image;
     }
 
-    public void setImage(Image image) {
+    public void setImage(Drawable image) {
         this.image = image;
     }
 
-    public Contacto(String nombre, String email, Integer telefono, Image image) {
+    public Contacto(String nombre){
+        this.nombre=nombre;
+    }
+
+    public Contacto(String nombre, String email, Integer telefono, Drawable image) {
         this.nombre = nombre;
         this.email = email;
         this.telefono = telefono;

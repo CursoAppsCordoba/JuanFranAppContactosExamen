@@ -15,9 +15,7 @@ import java.util.ArrayList;
 public class EditActivity extends AppCompatActivity implements View.OnClickListener{
     private ArrayList<Contacto> agenda;
     private Integer i;
-    private TextView nombre_s;
-    private TextView email_s;
-    private TextView telefono_s;
+
     private TextView nombre;
     private TextView email;
     private TextView telefono;
@@ -32,9 +30,6 @@ public class EditActivity extends AppCompatActivity implements View.OnClickListe
         nombre= (TextView)findViewById(R.id.edit_nombre);
         email=(TextView)findViewById(R.id.edit_email);
         telefono=(TextView)findViewById(R.id.edit_telefono);
-        nombre_s=(TextView)findViewById(R.id.edit_show_nombre);
-        telefono_s=(TextView)findViewById(R.id.edit_show_telefono);
-        email_s=(TextView)findViewById(R.id.edit_show_email);
         volver=(Button)findViewById(R.id.volver_edit);
         editar=(Button)findViewById(R.id.edit_edit);
         volver.setOnClickListener(this);
@@ -44,11 +39,9 @@ public class EditActivity extends AppCompatActivity implements View.OnClickListe
         agenda= (ArrayList<Contacto>) inte.getSerializableExtra("contacto");
         i= 0;
         i= inte.getIntExtra("posicion", i);
-        nombre_s.setText(agenda.get(i).getNombre());
-        email_s.setText(agenda.get(i).getEmail());
-        telefono_s.setText(agenda.get(i).getTelefono().toString());
-
-
+        nombre.setText(agenda.get(i).getNombre());
+        email.setText(agenda.get(i).getEmail());
+        telefono.setText(agenda.get(i).getTelefono().toString());
     }
 
     @Override
