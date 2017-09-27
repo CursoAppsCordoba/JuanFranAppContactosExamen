@@ -6,6 +6,7 @@ import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.media.MediaScannerConnection;
 import android.net.Uri;
 import android.os.Build;
@@ -31,6 +32,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 import java.io.File;
+import java.util.Objects;
 
 
 import static android.Manifest.permission.CAMERA;
@@ -199,8 +201,11 @@ public class AddActivity extends AppCompatActivity implements View.OnClickListen
                 contacto.setNombre(nombre.getText().toString());
                 contacto.setEmail(email.getText().toString());
                 contacto.setTelefono(Integer.parseInt(telefono.getText().toString()));
-                if (bitmap !=null)
-                contacto.setImage(new BitmapDrawable(getResources(), bitmap));
+                if (!Objects.equals(mSetImage,null)){
+
+                    bitmap = ((BitmapDrawable) mSetImage.getDrawable()).getBitmap();
+                    contacto.setImage(bitmap);
+                }
                 inte.putExtra("contacto", contacto);
                 setResult(AddActivity.RESULT_OK, inte);
                 finish();
@@ -212,6 +217,8 @@ public class AddActivity extends AppCompatActivity implements View.OnClickListen
 
         }
     }
+
+    //https://github.com/neelk07/SampleContactAndroidApp/blob/master/src/com/example/SampleContactApp/ContactList.java
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.main_menu, menu);
