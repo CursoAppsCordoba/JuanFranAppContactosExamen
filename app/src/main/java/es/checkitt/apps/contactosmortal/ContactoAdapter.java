@@ -79,7 +79,7 @@ public class ContactoAdapter extends BaseAdapter {
         company.setText(contacto.getTelefono().toString());
         if (contacto.getImage()!=null)
 
-        Picasso.with(view.getContext()).load(contacto.getImage()).transform(new RoundedTransformation(100,0)).fit().into(image);
+        Picasso.with(view.getContext()).load(contacto.getImage()).fit().into(image);
 
 
         return view;

@@ -310,7 +310,7 @@ public class AddActivity extends AppCompatActivity implements View.OnClickListen
                 storageDir
         );
 
-        mPath = "file:" + image.getAbsolutePath();
+        mPath = "file:" + image.getPath();
         return image;
     }
 }
