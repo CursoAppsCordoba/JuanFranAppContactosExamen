@@ -8,6 +8,24 @@
     tools:context="es.checkitt.apps.contactosmortal.MainActivity">
 
 
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/fab"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="false"
+        android:layout_alignParentEnd="false"
+        android:layout_alignParentLeft="false"
+        android:layout_alignParentRight="false"
+        android:layout_alignParentStart="false"
+        android:layout_alignParentTop="false"
+        android:layout_gravity="center_vertical|end"
+        android:layout_marginLeft="80dp"
+        android:layout_marginTop="120dp"
+        android:layout_weight="1"
+        android:src="@drawable/ic_camera"
+        app:borderWidth="0dp"
+        app:elevation="11dp" />
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -15,42 +33,37 @@
         android:layout_alignParentEnd="false"
         android:layout_alignParentTop="true"
         android:gravity="center_horizontal"
-        android:orientation="vertical"
-        android:paddingTop="30dp">
+        android:orientation="vertical">
 
         <LinearLayout
+            android:id="@+id/add_image_button"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:background="@color/colorPrimary"
+            android:elevation="10dp"
             android:gravity="center_horizontal"
-            android:orientation="horizontal">
+            android:orientation="horizontal"
+            android:paddingBottom="26dp"
+            android:paddingTop="26dp">
+
 
             <ImageView
                 android:id="@+id/setPicture"
                 android:layout_width="150dp"
                 android:layout_height="150dp"
                 android:layout_centerVertical="true"
+                android:layout_gravity="center_vertical"
                 android:adjustViewBounds="true"
-                android:scaleType="centerCrop" />
+                android:scaleType="centerCrop"
+                android:src="@mipmap/ic_back" />
+
 
         </LinearLayout>
 
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="horizontal">
-
-            <Button
-                android:id="@+id/add_image_button"
-                style="@style/Widget.AppCompat.Button.Colored"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Añadir imagen" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_marginTop="25dp"
             android:orientation="horizontal">
 
             <EditText

@@ -2,6 +2,7 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/edit_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context="es.checkitt.apps.contactosmortal.EditActivity">
@@ -9,6 +10,8 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:background="@color/colorPrimary"
+        android:elevation="16dp"
         android:gravity="center_horizontal"
         android:orientation="horizontal">
 
@@ -17,9 +20,11 @@
             android:layout_width="150dp"
             android:layout_height="150dp"
             android:layout_centerVertical="true"
+            android:layout_marginBottom="26dp"
             android:layout_marginTop="26dp"
             android:adjustViewBounds="true"
             android:scaleType="centerCrop"
+            android:tint="@android:color/white"
             app:srcCompat="@drawable/ic_people" />
 
     </LinearLayout>
@@ -66,9 +71,9 @@
     </LinearLayout>
 
     <LinearLayout
-        android:layout_alignParentBottom="true"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
         android:orientation="horizontal">
 
         <Button

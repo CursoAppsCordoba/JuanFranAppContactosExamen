@@ -17,6 +17,7 @@ import android.provider.MediaStore;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.annotation.RequiresApi;
+import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.content.FileProvider;
 import android.support.v7.app.AlertDialog;
@@ -51,17 +52,17 @@ import static android.Manifest.permission.CAMERA;
 import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
 import static android.provider.MediaStore.AUTHORITY;
 
-public class AddActivity extends AppCompatActivity implements View.OnClickListener{
+public class AddActivity extends AppCompatActivity implements View.OnClickListener {
     private static final String APP_TAG = "PictureApp";
     private final int MY_PERMISSIONS = 100;
     private final int PHOTO_CODE = 200;
     private final int SELECT_PICTURE = 300;
     private RelativeLayout mRelative;
     private ImageView mSetImage;
-    private Button add_i;
+    private FloatingActionButton add_i;
     private String mPath;
     private String setimageUri;
-
+    private Boolean primeravez;
 
 
     private TextView nombre, email, telefono;
@@ -71,57 +72,55 @@ public class AddActivity extends AppCompatActivity implements View.OnClickListen
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add);
-        mSetImage= (ImageView) findViewById(R.id.setPicture);
-        nombre= (TextView)findViewById(R.id.add_name);
-        email= (TextView)findViewById(R.id.add_email);
-        telefono= (TextView)findViewById(R.id.add_phone);
-        Button add_c = (Button)findViewById(R.id.add_add);
+        primeravez= getIntent().getBooleanExtra("boolean", true);
+        mSetImage = (ImageView) findViewById(R.id.setPicture);
+        nombre = (TextView) findViewById(R.id.add_name);
+        email = (TextView) findViewById(R.id.add_email);
+        telefono = (TextView) findViewById(R.id.add_phone);
+        Button add_c = (Button) findViewById(R.id.add_add);
         add_c.setOnClickListener(this);
-        Button add_v = (Button)findViewById(R.id.volver_add);
+        Button add_v = (Button) findViewById(R.id.volver_add);
         add_v.setOnClickListener(this);
-        add_i= (Button)findViewById(R.id.add_image_button);
-        mRelative= (RelativeLayout)findViewById(R.id.mRelative);
-        
-
-        if (myRequestStoragePermission())
-
-                add_i.setEnabled(true);
-
-        else
-            add_i.setEnabled(false);
-        
-
+        add_i = (FloatingActionButton) findViewById(R.id.fab);
         add_i.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
-                    showOptions();
-
+                showOptions();
             }
         });
+        mRelative = (RelativeLayout) findViewById(R.id.mRelative);
+
+
+        if (myRequestStoragePermission())
+
+            add_i.setEnabled(true);
+
+        else
+            add_i.setEnabled(false);
+
 
     }
 
     private void showOptions() {
 
-        final CharSequence[] option = {"Tomar foto", "Elegir de galería", "Cancelar" };
+        final CharSequence[] option = {"Tomar foto", "Elegir de galería", "Cancelar"};
         final AlertDialog.Builder builder = new AlertDialog.Builder(AddActivity.this);
         builder.setTitle("¿Cómo deseas añadir una imagen?");
         builder.setItems(option, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
-                if (option[i]== "Tomar foto"){
+                if (option[i] == "Tomar foto") {
                     try {
                         openCamera();
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
                     //No funciona bien lo de Elegir de galería.
-                }else if (option[i]== "Elegir de galería"){
+                } else if (option[i] == "Elegir de galería") {
                     Intent intent = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
                     intent.setType("image/*");
                     startActivityForResult(intent.createChooser(intent, "Seleccionar banco de imagenes"), SELECT_PICTURE);
-                }else{
+                } else {
                     dialogInterface.dismiss();
                 }
             }
@@ -134,12 +133,12 @@ public class AddActivity extends AppCompatActivity implements View.OnClickListen
         File file = new File(
                 getExternalFilesDir(Environment.DIRECTORY_PICTURES), APP_TAG);
         boolean isCreated = file.exists();
-        if (!isCreated){
+        if (!isCreated) {
             isCreated = file.mkdirs();
         }
-        if (isCreated){
-            Long timestamp= System.currentTimeMillis() / 1000;
-            String imageName = timestamp.toString()+".jpg";
+        if (isCreated) {
+            Long timestamp = System.currentTimeMillis() / 1000;
+            String imageName = timestamp.toString() + ".jpg";
 
 
             Uri uri = FileProvider.getUriForFile(AddActivity.this,
@@ -154,6 +153,7 @@ public class AddActivity extends AppCompatActivity implements View.OnClickListen
         }
 
     }
+
     @Override
     public void onSaveInstanceState(Bundle outState, PersistableBundle outPersistentState) {
         super.onSaveInstanceState(outState, outPersistentState);
@@ -170,8 +170,8 @@ public class AddActivity extends AppCompatActivity implements View.OnClickListen
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if(resultCode== RESULT_OK){
-            switch (requestCode){
+        if (resultCode == RESULT_OK) {
+            switch (requestCode) {
                 case PHOTO_CODE:
                     Uri imageUri = Uri.parse(mPath);
                     setimageUri = imageUri.getPath();
@@ -187,28 +187,28 @@ public class AddActivity extends AppCompatActivity implements View.OnClickListen
                 case SELECT_PICTURE:
                     Uri path = data.getData();
                     Glide.with(this).load(path).transform(new CircleTransform(this)).into(mSetImage);
-                    setimageUri= path.getPath();
+                    setimageUri = path.toString();
                     break;
             }
         }
     }
 
-    private boolean myRequestStoragePermission(){
+    private boolean myRequestStoragePermission() {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M)
-        return true;
-        if ((checkSelfPermission(WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED)&&(checkSelfPermission(CAMERA) == PackageManager.PERMISSION_GRANTED))
-        return true;
+            return true;
+        if ((checkSelfPermission(WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) && (checkSelfPermission(CAMERA) == PackageManager.PERMISSION_GRANTED))
+            return true;
 
-        if ((shouldShowRequestPermissionRationale(WRITE_EXTERNAL_STORAGE))||(shouldShowRequestPermissionRationale(CAMERA))){
-            Snackbar.make(mRelative , "Los permisos son necesarios para poder usar la aplicacion.", Snackbar.LENGTH_LONG).setAction(android.R.string.ok, new View.OnClickListener() {
+        if ((shouldShowRequestPermissionRationale(WRITE_EXTERNAL_STORAGE)) || (shouldShowRequestPermissionRationale(CAMERA))) {
+            Snackbar.make(mRelative, "Los permisos son necesarios para poder usar la aplicacion.", Snackbar.LENGTH_LONG).setAction(android.R.string.ok, new View.OnClickListener() {
                 @RequiresApi(api = Build.VERSION_CODES.M)
                 @Override
                 public void onClick(View view) {
-                    requestPermissions(new String[]{WRITE_EXTERNAL_STORAGE,CAMERA}, MY_PERMISSIONS);
+                    requestPermissions(new String[]{WRITE_EXTERNAL_STORAGE, CAMERA}, MY_PERMISSIONS);
                 }
             }).show();
-        }else{
-            requestPermissions(new String[]{WRITE_EXTERNAL_STORAGE,CAMERA}, MY_PERMISSIONS);
+        } else {
+            requestPermissions(new String[]{WRITE_EXTERNAL_STORAGE, CAMERA}, MY_PERMISSIONS);
         }
 
         return false;
@@ -220,47 +220,51 @@ public class AddActivity extends AppCompatActivity implements View.OnClickListen
         switch (view.getId()) {
 
             case R.id.add_add:
+                if (checkCampos()){
                 inte.putExtra("contacto", addContacto());
                 setResult(AddActivity.RESULT_OK, inte);
-                finish();
+                finish();}else{
+                    Toast.makeText(this, "Debes rellenar todos los campos.", Toast.LENGTH_SHORT).show();
+                }
                 break;
             case R.id.volver_add:
+                if (primeravez){
                 setResult(AddActivity.RESULT_CANCELED, inte);
-                finish();
+                finish();}
+                else{
+                    Toast.makeText(this, "Primero debes añadir un contacto.", Toast.LENGTH_SHORT).show();
+                }
                 break;
 
         }
     }
-    private Contacto addContacto(){
+
+    private Contacto addContacto() {
         contacto = new Contacto();
         contacto.setNombre(nombre.getText().toString());
         contacto.setEmail(email.getText().toString());
         contacto.setTelefono(Integer.parseInt(telefono.getText().toString()));
-        if (null!=mSetImage.getDrawable()){
-            contacto.setImage(setimageUri);
-        }else {
-            contacto.setImage("http://img.freepik.com/iconos-gratis/sombra-usuario-masculino_318-34042.jpg?size=338&ext=jpg");
-        }
+        contacto.setImage(setimageUri);
+
         return contacto;
     }
-
 
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
 
-        if (requestCode== MY_PERMISSIONS){
-            if (grantResults.length == 2 && grantResults[0] == PackageManager.PERMISSION_GRANTED && grantResults[1] == PackageManager.PERMISSION_GRANTED){
+        if (requestCode == MY_PERMISSIONS) {
+            if (grantResults.length == 2 && grantResults[0] == PackageManager.PERMISSION_GRANTED && grantResults[1] == PackageManager.PERMISSION_GRANTED) {
                 add_i.setEnabled(true);
             }
-        }else{
+        } else {
             showExplanation();
         }
     }
 
     private void showExplanation() {
-        AlertDialog.Builder builder= new AlertDialog.Builder(AddActivity.this);
+        AlertDialog.Builder builder = new AlertDialog.Builder(AddActivity.this);
         builder.setTitle("Permisos denegados");
         builder.setMessage("Para usar la funcionalidad de añadir imagen necesitas aceptar los permisos");
         builder.setPositiveButton("Aceptar", new DialogInterface.OnClickListener() {
@@ -284,10 +288,11 @@ public class AddActivity extends AppCompatActivity implements View.OnClickListen
 
     @Override
     public void onBackPressed() {
-        Intent inte= new Intent();
-        setResult(AddActivity.RESULT_CANCELED,inte);
+        Intent inte = new Intent();
+        setResult(AddActivity.RESULT_CANCELED, inte);
         finish();
     }
+
     private File createImageFile() throws IOException {
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
         String imageFileName = "JPEG_" + timeStamp + "_";
@@ -301,5 +306,21 @@ public class AddActivity extends AppCompatActivity implements View.OnClickListen
 
         mPath = "file:" + image.getPath();
         return image;
+    }
+    public boolean checkCampos(){
+
+        if (TextUtils.isEmpty(nombre.getText().toString())){
+            return false;
+        }
+        if (TextUtils.isEmpty(email.getText().toString())){
+            return false;
+        }
+        if (TextUtils.isEmpty(telefono.getText().toString())){
+            return false;
+        }
+        if (TextUtils.isEmpty(setimageUri)){
+            return false;
+        }
+        return true;
     }
 }

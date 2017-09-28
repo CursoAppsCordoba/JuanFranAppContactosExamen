@@ -5,6 +5,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -26,7 +27,7 @@ import java.util.Collections;
 import data.ContactDbHelper;
 
 
-public class MainActivity extends AppCompatActivity implements Toolbar.OnMenuItemClickListener{
+public class MainActivity extends AppCompatActivity{
     public final static int ALTA = 100;
     public final static int BAJA = 200;
     public final static int VOLVER = 300;
@@ -44,13 +45,19 @@ public class MainActivity extends AppCompatActivity implements Toolbar.OnMenuIte
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        toolbar.inflateMenu(R.menu.main_menu);
-        setSupportActionBar(toolbar);
         contacto= new Contacto();
         db= new ContactDbHelper(this);
         agenda = (ArrayList<Contacto>) db.getAgendaContactos();
         listview = (ListView) findViewById(R.id.listar_contactos_listview);
         Refrescar(agenda);
+        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent inte = new Intent(MainActivity.this, AddActivity.class);
+                startActivityForResult(inte, ALTA);
+            }
+        });
         swipeContainer = (SwipeRefreshLayout) findViewById(R.id.swipeContainer);
         swipeContainer.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
@@ -90,7 +97,9 @@ public class MainActivity extends AppCompatActivity implements Toolbar.OnMenuIte
             }
         });
         if (agenda.size()==0){
+            Toast.makeText(this, "No hay ningun contacto, añade uno primero", Toast.LENGTH_SHORT).show();
             Intent inte= new Intent(this, AddActivity.class);
+            inte.putExtra("boolean", false);
             startActivityForResult(inte, ALTA);
         }
     }
@@ -101,12 +110,6 @@ public class MainActivity extends AppCompatActivity implements Toolbar.OnMenuIte
         Refrescar(agenda);
 
     }
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.main_menu, menu);
-        return true;
-    }
-
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -168,24 +171,4 @@ public class MainActivity extends AppCompatActivity implements Toolbar.OnMenuIte
         builder.create().show();
     }
 
-
-    @Override
-    public boolean onMenuItemClick(MenuItem item) {
-        Intent inte = new Intent(MainActivity.this, AddActivity.class);
-        startActivityForResult(inte, ALTA);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle item selection
-        switch (item.getItemId()) {
-            case R.id.add_menu:
-                Intent inte = new Intent(MainActivity.this, AddActivity.class);
-                startActivityForResult(inte, ALTA);
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
-        }
-    }
 }

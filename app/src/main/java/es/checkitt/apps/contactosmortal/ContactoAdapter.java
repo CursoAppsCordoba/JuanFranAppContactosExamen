@@ -25,6 +25,7 @@ import com.squareup.picasso.Transformation;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Created by Apps on 25/09/2017.
@@ -76,8 +77,7 @@ public class ContactoAdapter extends BaseAdapter {
         name.setText(contacto.getNombre().toString());
         title.setText(contacto.getEmail().toString());
         company.setText(contacto.getTelefono().toString());
-        if (contacto.getImage()!=null)
-            Glide.with(view.getContext()).load(contacto.getImage()).transform(new CircleTransform(view.getContext())).into(image);
+        Glide.with(view.getContext()).load(contacto.getImage()).transform(new CircleTransform(view.getContext())).into(image);
         return view;
     }
 

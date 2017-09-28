@@ -5,6 +5,8 @@
       <module fileurl="file://$PROJECT_DIR$/AppContactosExamen.iml" filepath="$PROJECT_DIR$/AppContactosExamen.iml" />
       <module fileurl="file://$PROJECT_DIR$/ContactosMortal.iml" filepath="$PROJECT_DIR$/ContactosMortal.iml" />
       <module fileurl="file://$PROJECT_DIR$/ExamenCasiFinal.iml" filepath="$PROJECT_DIR$/ExamenCasiFinal.iml" />
+      <module fileurl="file://$PROJECT_DIR$/ExamenCasiFinal2.iml" filepath="$PROJECT_DIR$/ExamenCasiFinal2.iml" />
+      <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
     </modules>
   </component>
