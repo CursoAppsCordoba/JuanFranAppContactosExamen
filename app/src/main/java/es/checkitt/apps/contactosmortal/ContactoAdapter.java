@@ -66,7 +66,6 @@ public class ContactoAdapter extends BaseAdapter {
         if (view==null){
             LayoutInflater inflater= (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             view= inflater.inflate(R.layout.list_item_view, viewGroup, false);
-
         }
         TextView name = (TextView) view.findViewById(R.id.tv_name);
         TextView title = (TextView) view.findViewById(R.id.tv_title);
@@ -78,10 +77,7 @@ public class ContactoAdapter extends BaseAdapter {
         title.setText(contacto.getEmail().toString());
         company.setText(contacto.getTelefono().toString());
         if (contacto.getImage()!=null)
-
-        Picasso.with(view.getContext()).load(contacto.getImage()).fit().into(image);
-
-
+            Glide.with(view.getContext()).load(contacto.getImage()).transform(new CircleTransform(view.getContext())).into(image);
         return view;
     }
 

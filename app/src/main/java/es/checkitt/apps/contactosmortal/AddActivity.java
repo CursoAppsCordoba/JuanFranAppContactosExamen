@@ -32,6 +32,9 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.bumptech.glide.Glide;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -42,14 +45,14 @@ import java.util.Date;
 import java.util.Objects;
 
 
+import data.ContactDbHelper;
+
 import static android.Manifest.permission.CAMERA;
 import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
 import static android.provider.MediaStore.AUTHORITY;
 
 public class AddActivity extends AppCompatActivity implements View.OnClickListener{
     private static final String APP_TAG = "PictureApp";
-    private static String APP_DIRECTORY= "MyPictureApp/";
-    private static String MEDIA_DIRECTORY= APP_DIRECTORY +"PictureApp";
     private final int MY_PERMISSIONS = 100;
     private final int PHOTO_CODE = 200;
     private final int SELECT_PICTURE = 300;
@@ -57,8 +60,8 @@ public class AddActivity extends AppCompatActivity implements View.OnClickListen
     private ImageView mSetImage;
     private Button add_i;
     private String mPath;
-    private Bitmap bitmap;
-    private String ubicacion;
+    private String setimageUri;
+
 
 
     private TextView nombre, email, telefono;
@@ -81,11 +84,9 @@ public class AddActivity extends AppCompatActivity implements View.OnClickListen
         
 
         if (myRequestStoragePermission())
-            if (Build.VERSION.SDK_INT > Build.VERSION_CODES.M) {
+
                 add_i.setEnabled(true);
-            }else{
-                Toast.makeText(this, "Necesitas android superior a Nougat para añadir una imagen de la cámara.", Toast.LENGTH_SHORT).show();
-                add_i.setEnabled(false);}
+
         else
             add_i.setEnabled(false);
         
@@ -94,19 +95,16 @@ public class AddActivity extends AppCompatActivity implements View.OnClickListen
             @Override
             public void onClick(View view) {
 
-                try {
-                    openCamera();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+                    showOptions();
+
             }
         });
 
     }
 
-   /* private void showOptions() {
+    private void showOptions() {
 
-        final CharSequence[] option = {"Tomar foto", *//*"Elegir de galería",*//* "Cancelar" };
+        final CharSequence[] option = {"Tomar foto", "Elegir de galería", "Cancelar" };
         final AlertDialog.Builder builder = new AlertDialog.Builder(AddActivity.this);
         builder.setTitle("¿Cómo deseas añadir una imagen?");
         builder.setItems(option, new DialogInterface.OnClickListener() {
@@ -119,10 +117,10 @@ public class AddActivity extends AppCompatActivity implements View.OnClickListen
                         e.printStackTrace();
                     }
                     //No funciona bien lo de Elegir de galería.
-                *//*}else if (option[i]== "Elegir de galería"){
+                }else if (option[i]== "Elegir de galería"){
                     Intent intent = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-                    intent.setType("image*//**//*");
-                    startActivityForResult(intent.createChooser(intent, "Seleccionar banco de imagenes"), SELECT_PICTURE);*//*
+                    intent.setType("image/*");
+                    startActivityForResult(intent.createChooser(intent, "Seleccionar banco de imagenes"), SELECT_PICTURE);
                 }else{
                     dialogInterface.dismiss();
                 }
@@ -130,7 +128,7 @@ public class AddActivity extends AppCompatActivity implements View.OnClickListen
         });
         builder.show();
 
-    }*/
+    }
 
     private void openCamera() throws IOException {
         File file = new File(
@@ -156,9 +154,6 @@ public class AddActivity extends AppCompatActivity implements View.OnClickListen
         }
 
     }
-
-
-
     @Override
     public void onSaveInstanceState(Bundle outState, PersistableBundle outPersistentState) {
         super.onSaveInstanceState(outState, outPersistentState);
@@ -179,14 +174,9 @@ public class AddActivity extends AppCompatActivity implements View.OnClickListen
             switch (requestCode){
                 case PHOTO_CODE:
                     Uri imageUri = Uri.parse(mPath);
+                    setimageUri = imageUri.getPath();
                     File file = new File(imageUri.getPath());
-                    try {
-                        InputStream ims = new FileInputStream(file);
-                        mSetImage.setImageBitmap(BitmapFactory.decodeStream(ims));
-                    } catch (FileNotFoundException e) {
-                        return;
-                    }
-
+                    Glide.with(this).load(setimageUri).transform(new CircleTransform(this)).into(mSetImage);
                     MediaScannerConnection.scanFile(AddActivity.this,
                             new String[]{imageUri.getPath()}, null,
                             new MediaScannerConnection.OnScanCompletedListener() {
@@ -194,16 +184,11 @@ public class AddActivity extends AppCompatActivity implements View.OnClickListen
                                 }
                             });
                     break;
-                //No muestra la imagen pero si guarda el path.
-/*                case SELECT_PICTURE:
-
+                case SELECT_PICTURE:
                     Uri path = data.getData();
-                    mSetImage.setImageURI(path);
-                    mPath= data.getData().getPath();
-                    String prueba= mSetImage.getDrawable().toString();
-
-                    Toast.makeText(this, ".", Toast.LENGTH_SHORT).show();
-                    break;*/
+                    Glide.with(this).load(path).transform(new CircleTransform(this)).into(mSetImage);
+                    setimageUri= path.getPath();
+                    break;
             }
         }
     }
@@ -235,15 +220,7 @@ public class AddActivity extends AppCompatActivity implements View.OnClickListen
         switch (view.getId()) {
 
             case R.id.add_add:
-                contacto = new Contacto();
-                contacto.setNombre(nombre.getText().toString());
-                contacto.setEmail(email.getText().toString());
-                contacto.setTelefono(Integer.parseInt(telefono.getText().toString()));
-
-                if (null!=mSetImage.getDrawable()){
-                    contacto.setImage(mPath);
-                }
-                inte.putExtra("contacto", contacto);
+                inte.putExtra("contacto", addContacto());
                 setResult(AddActivity.RESULT_OK, inte);
                 finish();
                 break;
@@ -254,8 +231,20 @@ public class AddActivity extends AppCompatActivity implements View.OnClickListen
 
         }
     }
+    private Contacto addContacto(){
+        contacto = new Contacto();
+        contacto.setNombre(nombre.getText().toString());
+        contacto.setEmail(email.getText().toString());
+        contacto.setTelefono(Integer.parseInt(telefono.getText().toString()));
+        if (null!=mSetImage.getDrawable()){
+            contacto.setImage(setimageUri);
+        }else {
+            contacto.setImage("http://img.freepik.com/iconos-gratis/sombra-usuario-masculino_318-34042.jpg?size=338&ext=jpg");
+        }
+        return contacto;
+    }
 
-    //https://github.com/neelk07/SampleContactAndroidApp/blob/master/src/com/example/SampleContactApp/ContactList.java
+
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {

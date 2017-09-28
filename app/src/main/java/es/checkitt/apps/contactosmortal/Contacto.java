@@ -3,8 +3,10 @@ package es.checkitt.apps.contactosmortal;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.media.Image;
+import android.net.Uri;
 
 import java.io.Serializable;
+import java.net.URI;
 import java.util.Comparator;
 
 /**
@@ -16,6 +18,11 @@ public class Contacto implements Serializable, Comparator<Contacto>{
     private String email;
     private Integer telefono;
     private String image;
+    private boolean asc;
+
+    public Contacto(boolean asc){
+        this.asc= asc;
+    }
 
     public String getImage() {
         return image;
@@ -71,6 +78,13 @@ public class Contacto implements Serializable, Comparator<Contacto>{
 
     @Override
     public int compare(Contacto contacto, Contacto t1) {
-        return 0;
+        int retVal;
+        if (asc){
+            retVal= contacto.getNombre().compareTo(t1.getNombre());
+        }else{
+            retVal= t1.getNombre().compareTo(contacto.getNombre());
+        }
+        return retVal;
+
     }
 }

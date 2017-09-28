@@ -7,6 +7,7 @@ import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -19,6 +20,10 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.Toast;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+
+import data.ContactDbHelper;
 
 
 public class MainActivity extends AppCompatActivity implements Toolbar.OnMenuItemClickListener{
@@ -28,6 +33,9 @@ public class MainActivity extends AppCompatActivity implements Toolbar.OnMenuIte
     ArrayList<Contacto> agenda;
     private ListView listview;
     private ContactoAdapter contactoAdapter;
+    private SwipeRefreshLayout swipeContainer;
+    private ContactDbHelper db;
+    private Contacto contacto;
 
 
     @Override
@@ -38,10 +46,20 @@ public class MainActivity extends AppCompatActivity implements Toolbar.OnMenuIte
         setSupportActionBar(toolbar);
         toolbar.inflateMenu(R.menu.main_menu);
         setSupportActionBar(toolbar);
-        agenda = new ArrayList<>();
-        agenda.add(new Contacto("pepe", "a@a.es", 65482));
+        contacto= new Contacto();
+        db= new ContactDbHelper(this);
+        agenda = (ArrayList<Contacto>) db.getAgendaContactos();
         listview = (ListView) findViewById(R.id.listar_contactos_listview);
         Refrescar(agenda);
+        swipeContainer = (SwipeRefreshLayout) findViewById(R.id.swipeContainer);
+        swipeContainer.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                Refrescar(agenda);
+                swipeContainer.setRefreshing(false);
+
+            }
+        });
         listview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
@@ -96,19 +114,18 @@ public class MainActivity extends AppCompatActivity implements Toolbar.OnMenuIte
         
         if (requestCode==ALTA) {
             if (data.hasExtra("contacto")) {
-
                 agenda.add((Contacto) data.getSerializableExtra("contacto"));
+                db.volcarArray(agenda);
                 Refrescar(agenda);
                 Toast.makeText(this, "Contacto añadido con exito", Toast.LENGTH_SHORT).show();
 
             }
         }
         if (requestCode==VOLVER){
-
                 if (data.hasExtra("array")){
                     agenda = (ArrayList<Contacto>) data.getSerializableExtra("array");
+                    db.volcarArray(agenda);
                     Refrescar(agenda);
-                    contactoAdapter.notifyDataSetChanged();
                 }
         }
         if(requestCode==RESULT_CANCELED){
@@ -116,6 +133,8 @@ public class MainActivity extends AppCompatActivity implements Toolbar.OnMenuIte
         }
     }
     public void Refrescar(ArrayList<Contacto> agenda){
+        agenda= (ArrayList<Contacto>) db.getAgendaContactos();
+        Collections.sort(agenda, new Contacto(true));
         contactoAdapter= new ContactoAdapter(this, agenda);
         listview.setAdapter(contactoAdapter);
     }
@@ -127,7 +146,9 @@ public class MainActivity extends AppCompatActivity implements Toolbar.OnMenuIte
 
         .setPositiveButton("Eliminar", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
-                agenda.remove(agenda.get(position));
+                contacto = agenda.get(position);
+                agenda.remove(contacto);
+                db.volcarArray(agenda);
                 Refrescar(agenda);
             }
         })
@@ -166,9 +187,5 @@ public class MainActivity extends AppCompatActivity implements Toolbar.OnMenuIte
             default:
                 return super.onOptionsItemSelected(item);
         }
-    }
-    @Override
-    public void onBackPressed() {
-        finish();
     }
 }
